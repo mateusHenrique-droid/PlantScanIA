@@ -198,7 +198,7 @@ const DB=[
 ['sonchus','Serralha','Asteraceae','Solta látex leitoso e tem folhas recortadas.','Arranque com a raiz;Controle antes de florescer'],
 ['solanum americanum','Maria-pretinha','Solanaceae','Frutinhos pretos. A planta verde pode ser tóxica.','Use luvas ao manejar;Capine antes da frutificação'],
 ['solanum viarum','Joá-bravo','Solanaceae','Arbusto espinhoso de frutos amarelados, comum em pastagens.','Use luvas grossas ao manejar;Retire antes de frutificar e descarte os frutos'],
-['spermacoce latifolia,borreria latifolia','Erva-quente','Rubiaceae','Erva ereta ou semi-prostrada de folhas relativamente largas e flores brancas pequenas nas axilas. Prefere solos ácidos e é comum em lavouras anuais, cafezais, pomares e terrenos baldios.','Capine quando jovem, antes da floração;A calagem do solo ajuda a reduzir a infestação;Cubra o solo com palha'],
+['spermacoce latifolia,borreria latifolia','Erva-quente','Rubiaceae','Erva ereta ou semi-prostrada de folhas relativamente largas e flores brancas pequenas nas axilas. Prefere solos ácidos e é comum em lavouras anuais, cafezais, pomares e terrenos baldios.','Capine quando jovem, antes da floração;A calagem do solo ajuda a reduzir a infestation;Cubra o solo com palha'],
 ['alternanthera','Apaga-fogo','Amaranthaceae','Rasteira com flores em bolinhas brancas ou avermelhadas.','Remova a planta inteira;Evite áreas encharcadas'],
 ['rottboellia','Capim-camalote','Poaceae','Gramínea alta com pelos que irritam a pele.','Use luvas e mangas compridas ao manejar;Controle antes da formação de sementes'],
 ['pteridium','Samambaia-das-taperas','Dennstaedtiaceae','Samambaia de pastagens, tóxica para o gado.','Roce repetidamente;Evite o pastejo na área invadida'],
@@ -277,10 +277,13 @@ function show(data){
   (data.candidatas||[]).forEach(c=>{const w=DB[c.id];if(w&&!found.some(x=>x.w===w))found.push({w,p:Math.max(0,Math.min(100,Math.round(c.confianca||0)))})});
   const obs=data.observacao?'<p class="sci">'+esc(data.observacao)+'</p>':'';
   const dica=data.foto_sugerida?'<div class="msg info">Para ter mais certeza, tire também: '+esc(data.foto_sugerida)+'</div>':'';
-  const abaixo=found.length&&found[0].p<MIN_CONF; alerta="abaixo?`<div" class="msg err" const><b>Confiança abaixo de ${MIN_CONF}%.</b> Não é seguro basear uma compra ou aplicação nisto ainda. Tire mais fotos (folha e flor de perto) ou peça confirmação de um engenheiro agrônomo antes de qualquer gasto.</div>`:'';
+  const abaixo=found.length&&found[0].p<MIN_CONF;
+  const alerta=abaixo?`<div class="msg err"><b>Confiança abaixo de ${MIN_CONF}%.</b> Não é seguro basear uma compra ou aplicação nisto ainda. Tire mais fotos (folha e flor de perto) ou peça confirmação de um engenheiro agrônomo antes de qualquer gasto.</div>`:'';
+  
   if(found.length){
     $('out').innerHTML=alerta+found.slice(0,3).map((x,i)=>{
-      const baixa=x.p<MIN_CONF; `<article class="res ${(!i&&!baixa)?'top':''}" return>
+      const baixa=x.p<MIN_CONF;
+      return `<article class="res ${(!i&&!baixa)?'top':''}">
       <div style="display:flex;gap:12px;align-items:center">${ico(x.w)}<div><h2>${esc(x.w.n)}</h2><div class="sci">${esc(x.w.k[0])} · família ${esc(x.w.f)}</div></div></div>
       <span class="tag${baixa?' no':''}">${baixa?'Confirme antes de agir':'Planta daninha do Brasil e da América Latina'}</span>
       <div class="meter"><i style="width:${x.p}%;background:${baixa?'var(--warn)':'var(--leaf)'}"></i></div><div class="sci">Confiança: ${x.p}%${baixa?` — abaixo do mínimo de ${MIN_CONF}% para decisões de alto valor`:''}</div>
@@ -354,7 +357,7 @@ No máximo 3 candidatas, da mais para a menos provável. Seja conservador na "co
 
   }catch(e){
     console.error(e);
-    err('Não foi possível identificar a planta. Verifique se adicionou sua chave da API da Gemini ou tente novamente.');
+    err('Não foi possível identificar a planta. Verifique sua chave da API da Gemini ou tente novamente.');
   }finally{
     busy(false);
   }
