@@ -115,7 +115,6 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
         <h1>Aponte a câmera e descubra a daninha.</h1>
         <p>Identifique plantas daninhas do Brasil e da América Latina a partir de uma foto e veja como controlá-las.</p>
         <div class="chips"><span>Brasil</span><span>América Latina</span><span>Dicas de manejo</span></div>
-        
       </div>
       <div>
         <label class="vf" id="vf" for="file" tabindex="0">
@@ -132,8 +131,8 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
         <input type="file" id="fileMore" accept="image/*" multiple hidden>
         <div class="slots" id="slots" hidden></div>
         <div class="msg info" id="note" hidden></div>
-<textarea id="desc" rows="3" hidden placeholder="Ex.: folhas pequenas e opostas, flores brancas, cresce rasteira em solo de lavoura"></textarea>
-<div class="actions" id="acts" hidden>
+        <textarea id="desc" rows="3" placeholder="Ex.: folhas pequenas e opostas, flores brancas, cresce rasteira em solo de lavoura"></textarea>
+        <div class="actions" id="acts" hidden>
           <button class="ghost" id="again" type="button">Nova foto</button>
           <button class="go" id="scan" type="button">Escanear planta</button>
         </div>
@@ -145,7 +144,15 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 <main class="wrap">
   <div id="out" aria-live="polite"></div>
 
-  <section class="sec" style="margin-top:0"><h2>Plantas em destaque</h2><p>Toque em uma delas para ver os detalhes no guia.</p><div class="feat"><button type="button" style="--t:#eef0e6" onclick="pick('Erva-quente')"><svg aria-hidden="true"><use href="#p-daisy"/></svg><span><b>Erva-quente</b><small>Florzinhas brancas agrupadas nas axilas</small></span></button><button type="button" style="--t:#dfe3d2" onclick="pick('Buva')"><svg aria-hidden="true"><use href="#p-daisy"/></svg><span><b>Buva</b><small>Roseta que alonga um caule peludo</small></span></button><button type="button" style="--t:#e6d8cb" onclick="pick('Caruru')"><svg aria-hidden="true"><use href="#p-leaf"/></svg><span><b>Caruru</b><small>Cresce rápido em solo adubado</small></span></button><button type="button" style="--t:#e3e6da" onclick="pick('Vassourinha')"><svg aria-hidden="true"><use href="#p-daisy"/></svg><span><b>Vassourinha-de-botão</b><small>Tolera mal o glifosato em soja</small></span></button></div></section>
+  <section class="sec" style="margin-top:0">
+    <h2>Plantas em destaque</h2><p>Toque em uma delas para ver os detalhes no guia.</p>
+    <div class="feat">
+      <button type="button" style="--t:#eef0e6" onclick="pick('Erva-quente')"><svg aria-hidden="true"><use href="#p-daisy"/></svg><span><b>Erva-quente</b><small>Florzinhas brancas agrupadas nas axilas</small></span></button>
+      <button type="button" style="--t:#dfe3d2" onclick="pick('Buva')"><svg aria-hidden="true"><use href="#p-daisy"/></svg><span><b>Buva</b><small>Roseta que alonga um caule peludo</small></span></button>
+      <button type="button" style="--t:#e6d8cb" onclick="pick('Caruru')"><svg aria-hidden="true"><use href="#p-leaf"/></svg><span><b>Caruru</b><small>Cresce rápido em solo adubado</small></span></button>
+      <button type="button" style="--t:#e3e6da" onclick="pick('Vassourinha')"><svg aria-hidden="true"><use href="#p-daisy"/></svg><span><b>Vassourinha-de-botão</b><small>Tolera mal o glifosato em soja</small></span></button>
+    </div>
+  </section>
 
   <section class="sec" id="guia">
     <h2>Guia de plantas daninhas</h2>
@@ -161,6 +168,9 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 </footer>
 
 <script>
+// INSIRA SUA CHAVE DA API GEMINI AQUI:
+const GEMINI_API_KEY = "SUA_CHAVE_API_GEMINI_AQUI";
+
 const DB=[
 ['bidens','Picão-preto','Asteraceae','Erva ereta com frutos que grudam em roupas e animais.','Capine antes da floração;Use cobertura morta para reduzir a germinação'],
 ['cyperus','Tiririca','Cyperaceae','Forma tubérculos no solo e rebrota com facilidade.','Evite revolver o solo sem necessidade;Em áreas grandes, peça orientação técnica sobre herbicidas sistêmicos'],
@@ -200,11 +210,14 @@ const DB=[
 ['lolium','Azevém','Poaceae','Gramínea de inverno que invade trigo e outras culturas.','Faça rotação de culturas;Atenção: há populações resistentes a herbicidas'],
 ['raphanus','Nabiça','Brassicaceae','Flores brancas ou lilases, invade lavouras de inverno.','Capine antes da floração;Faça rotação de culturas'],
 ['spermacoce verticillata,borreria verticillata','Vassourinha-de-botão','Rubiaceae','Erva muito ramificada, com caule de seção quadrada (tetrágono) e folhas estreitas e alongadas. As flores brancas se juntam em pequenos glomérulos parecidos com bolinhas. Vem se tornando um problema crescente em lavouras de soja no Centro-Oeste, com populações que toleram mal o glifosato sozinho.','Capine ou faça controle mecânico ainda jovem;Combine herbicidas de mecanismos diferentes, não confie só no glifosato;Não deixe as sementes amadurecerem e caírem no solo']
-].map(a=>({k:a[0].split(','),n:a[1],f:a[2],d:a[3],t:a[4].split(';'),s:a[0]}));
+].map((a,i)=>({id:i,k:a[0].split(','),n:a[1],f:a[2],d:a[3],t:a[4].split(';'),s:a[0]}));
+
 const META=['daisy|#f0b429','grass|#5b8c5a','leaf|#8a5a3b','grass|#7fae52','grass|#6b8f4e','leaf|#c96b3f','daisy|#9b7fc7','leaf|#7c9473','leaf|#b23c1f','vine|#3b6fa0','vine|#8e44ad','grass|#4f7942','grass|#556b2f','daisy|#a9b98a','daisy|#d9d9c8','bur|#8b5a2b','leaf|#6b8e23','daisy|#e8e0c0','grass|#8fbc5a','bur|#a0522d','grass|#d8a7c9','grass|#6b8e23','daisy|#e8734a','daisy|#f0c419','leaf|#4a4a3a','bur|#c9a227','daisy|#eef0e6','daisy|#e0b8b0','grass|#7a8450','leaf|#2e5c2b','daisy|#e8912d','aquatic|#5aa9c9','leaf|#4a7043','daisy|#f1c40f','grass|#4f7d5c','grass|#7fae52','daisy|#c9b8e8','daisy|#b9c0a8'];
 DB.forEach((w,i)=>{const m=(META[i]||'leaf|#3f7d3a').split('|');w.icon=m[0];w.color=m[1]});
+
 const CHEM=['Inibidores da ALS ou auxinas sintéticas (2,4-D)','Inibidores da ALS específicos para tiririca, em pós-emergência','Inibidores da PROTOX ou da ALS, conforme resistência local','Graminicidas inibidores da ACCase, em pós-emergência','Graminicidas sistêmicos; atenção a biótipos resistentes ao glifosato','Herbicidas de contato ou inibidores da PROTOX','Inibidores da ALS ou herbicidas hormonais','Auxinas sintéticas (2,4-D) ou inibidores da ALS','Inibidores da PROTOX; há biótipos resistentes à ALS','Difícil controle químico; combine herbicida de contato com controle mecânico','Auxinas sintéticas ou inibidores da ALS','Graminicidas sistêmicos específicos, aplicação repetida','Graminicidas sistêmicos (ACCase ou EPSPs)','Inibidores da ALS ou EPSPs + auxina; muitos biótipos resistentes','Inibidores da ALS ou auxinas sintéticas','Auxinas sintéticas ou inibidores da ALS','Inibidores da ALS ou da fotossíntese (triazinas)','Herbicidas de contato ou inibidores da ALS','Graminicidas seletivos específicos para a cultura','Graminicidas sistêmicos em pós-emergência inicial','Graminicidas ou roçada mecânica','Graminicidas sistêmicos de amplo espectro','Inibidores da ALS ou herbicidas hormonais','Inibidores da ALS; atenção a resistência','Inibidores da PROTOX ou da fotossíntese','Controle mecânico preferível; hormonal como último recurso','Inibidores da ALS ou de contato pré-emergentes','Inibidores da ALS ou de contato','Graminicidas sistêmicos aplicados cedo, antes da touceira','Controle químico difícil; hormonal associado a roçada','Hormonal em aplicação localizada no tronco/touceira','Controle químico restrito perto da água; priorize remoção mecânica','Inibidores da ALS ou auxinas sintéticas','Auxinas sintéticas ou inibidores da ALS','Graminicidas específicos para arroz irrigado','Graminicidas sistêmicos; muitos biótipos resistentes ao glifosato','Inibidores da ALS ou auxinas sintéticas','Inibidores da ALS ou de contato pré-emergentes; muitas populações toleram mal o glifosato sozinho'];
 DB.forEach((w,i)=>{w.chem=CHEM[i]||'Consulte um agrônomo para o grupo indicado'});
+
 const chemBlock=w=>`<div class="msg info"><b>Grupo de herbicida geralmente indicado:</b> ${esc(w.chem)}.<br>O produto, a dose e o momento certo dependem da cultura e exigem receituário agronômico de um engenheiro agrônomo — não é uma recomendação de compra.</div>`;
 
 const $=i=>document.getElementById(i);
@@ -212,26 +225,15 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 const ico=w=>'<svg class="ico" aria-hidden="true" style="color:'+w.color+'"><use href="#p-'+w.icon+'"/></svg>';
 const tips=w=>'<ul>'+w.t.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>';
 const LIST=DB.map((w,i)=>i+': '+w.n+' — '+w.k[0]+' ('+w.f+'). '+w.d).join('\n');
-let files=[],sample=null,canPhoto=false,maxImgs=1;
-const SLOT_LABEL=['Planta toda','Folha de perto','Flor ou fruto','Extra'];
 
-const note=m=>{$('note').textContent=m;$('note').hidden=!m};
-function textMode(){$('desc').hidden=false;$('acts').hidden=false;
-  note('Este visor ainda não envia fotos para a IA. Descreva a planta e ela será comparada com a lista de daninhas.')}
-(async()=>{
-  try{sample=await window.claude?.use('sample')}catch(e){}
-  if(!sample){note('A identificação por IA não está disponível aqui. Explore o guia de daninhas abaixo.');$('scan').disabled=true;$('acts').hidden=false;return}
-  try{const lim=await sample.limits();canPhoto=!!lim.images;maxImgs=Math.max(1,Math.min(4,lim.images?.maxCount||1))}catch(e){}
-  if(!canPhoto)textMode();
-  else if(maxImgs>1)note('Dica: quanto mais fotos (planta toda, folha, flor), mais precisa fica a identificação.');
-})();
+let files=[], maxImgs=4;
+const SLOT_LABEL=['Planta toda','Folha de perto','Flor ou fruto','Extra'];
 
 function renderThumbs(){
   $('preview').src=files[0]?URL.createObjectURL(files[0]):'';
-  $('preview').hidden=!files[0];
-  $('hint').hidden=!!files[0];
+  $('preview').hidden=!files[0];$('hint').hidden=!!files[0];
   const box=$('slots');
-  box.hidden=files.length===0||maxImgs<2;
+  box.hidden=files.length===0;
   let html='';
   for(let i=1;i<maxImgs;i++){
     const f=files[i];
@@ -241,24 +243,33 @@ function renderThumbs(){
   }
   box.innerHTML=html;
 }
+
 $('slots').onclick=e=>{
   const rm=e.target.closest('[data-rm]'),add=e.target.closest('[data-add]');
   if(rm){files.splice(+rm.dataset.rm,1);renderThumbs();$('out').innerHTML='';}
   else if(add)$('fileMore').click();
 };
+
 $('file').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
   files=[f,...files.slice(1)];renderThumbs();$('acts').hidden=false;$('out').innerHTML='';
 };
+
 $('fileMore').onchange=e=>{
   files=files.concat(Array.from(e.target.files)).slice(0,maxImgs);
   $('fileMore').value='';renderThumbs();$('out').innerHTML='';
 };
-$('again').onclick=()=>{files=[];$('file').value='';renderThumbs();
-  if(canPhoto)$('acts').hidden=true;$('out').innerHTML='';$('file').click()};
 
-function shrink(f){return new Promise(r=>{const i=new Image();i.onload=()=>{const s=Math.min(1,1280/Math.max(i.width,i.height)),c=document.createElement('canvas');
-  c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(b=>r(b||f),'image/jpeg',.85)};i.onerror=()=>r(f);i.src=URL.createObjectURL(f)})}
+$('again').onclick=()=>{files=[];$('file').value='';renderThumbs();$('acts').hidden=true;$('out').innerHTML='';$('file').click()};
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
 
 const MIN_CONF=70;
 function show(data){
@@ -266,12 +277,10 @@ function show(data){
   (data.candidatas||[]).forEach(c=>{const w=DB[c.id];if(w&&!found.some(x=>x.w===w))found.push({w,p:Math.max(0,Math.min(100,Math.round(c.confianca||0)))})});
   const obs=data.observacao?'<p class="sci">'+esc(data.observacao)+'</p>':'';
   const dica=data.foto_sugerida?'<div class="msg info">Para ter mais certeza, tire também: '+esc(data.foto_sugerida)+'</div>':'';
-  const abaixo=found.length&&found[0].p<MIN_CONF;
-  const alerta=abaixo?`<div class="msg err"><b>Confiança abaixo de ${MIN_CONF}%.</b> Não é seguro basear uma compra ou aplicação nisto ainda. Tire mais fotos (folha e flor de perto) ou peça confirmação de um engenheiro agrônomo antes de qualquer gasto.</div>`:'';
+  const abaixo=found.length&&found[0].p<MIN_CONF; alerta="abaixo?`<div" class="msg err" const><b>Confiança abaixo de ${MIN_CONF}%.</b> Não é seguro basear uma compra ou aplicação nisto ainda. Tire mais fotos (folha e flor de perto) ou peça confirmação de um engenheiro agrônomo antes de qualquer gasto.</div>`:'';
   if(found.length){
     $('out').innerHTML=alerta+found.slice(0,3).map((x,i)=>{
-      const baixa=x.p<MIN_CONF;
-      return `<article class="res ${(!i&&!baixa)?'top':''}">
+      const baixa=x.p<MIN_CONF; `<article class="res ${(!i&&!baixa)?'top':''}" return>
       <div style="display:flex;gap:12px;align-items:center">${ico(x.w)}<div><h2>${esc(x.w.n)}</h2><div class="sci">${esc(x.w.k[0])} · família ${esc(x.w.f)}</div></div></div>
       <span class="tag${baixa?' no':''}">${baixa?'Confirme antes de agir':'Planta daninha do Brasil e da América Latina'}</span>
       <div class="meter"><i style="width:${x.p}%;background:${baixa?'var(--warn)':'var(--leaf)'}"></i></div><div class="sci">Confiança: ${x.p}%${baixa?` — abaixo do mínimo de ${MIN_CONF}% para decisões de alto valor`:''}</div>
@@ -284,45 +293,77 @@ function show(data){
   }
   $('out').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
 const err=m=>{$('out').innerHTML='<div class="msg err">'+esc(m)+'</div>'};
 const busy=b=>{$('vf').classList.toggle('scanning',b);$('scan').disabled=$('again').disabled=b;
-  if(b)$('out').innerHTML='<div class="msg info">Analisando a planta...</div>'};
+  if(b)$('out').innerHTML='<div class="msg info">Analisando a planta com a IA da Gemini...</div>'};
 
 $('scan').onclick=async()=>{
   const d=$('desc').value.trim();
-  if(canPhoto&&!files.length)return;
-  if(!canPhoto&&d.length<8){err('Descreva a planta com mais detalhes: formato das folhas, flores e onde ela nasce.');return}
-  const ent=canPhoto
+  if(!files.length && d.length < 8){
+    err('Tire uma foto ou descreva a planta com mais detalhes: formato das folhas, flores e onde ela nasce.');
+    return;
+  }
+
+  const ent=files.length
     ?'As '+files.length+' imagem(ns) anexa(s) mostram a mesma planta, de ângulos diferentes (ex.: planta toda, folha, flor).'+(d?' Observação do usuário: "'+d+'"':'')
     :'Descrição da planta feita pelo usuário: "'+d+'"';
+
   const prompt=`Você é um engenheiro agrônomo especialista em identificar plantas daninhas do Brasil e da América Latina.
 ${ent}
 Examine com atenção o formato e a disposição das folhas, a cor e o formato das flores ou frutos, e o hábito de crescimento (rasteiro, ereto ou trepador) antes de decidir.
-Espécies possíveis — escolha SOMENTE entre estas, comparando com a descrição de cada uma:
+Espécies possíveis — escolha SOMENTE entre estas, comparando com a descrição de cada uma (use o id numérico correspondente):
 ${LIST}
-Responda SOMENTE com JSON, sem texto fora do JSON:
-{"candidatas":[{"id":<número da lista>,"confianca":<0 a 100, sua certeza real>}],"observacao":"<1 frase: o traço decisivo que te fez escolher, ou por que está incerto>","foto_sugerida":"<se a confiança for baixa ou houver 2+ espécies parecidas, diga qual foto ajudaria (ex.: 'foto da flor bem de perto'); senão, string vazia>"}
-No máximo 3 candidatas, da mais para a menos provável. Seja conservador na "confianca": só passe de 70 se as imagens realmente mostrarem com clareza os traços decisivos da espécie (folha, flor ou fruto característicos); em caso de dúvida real, fique abaixo de 70. Nunca infle o número para parecer mais certo do que está. Se a planta não corresponder a nenhuma da lista com uma confiança mínima razoável, deixe "candidatas" vazia e explique na observação.`;
+Responda SOMENTE com JSON válido, sem qualquer texto ou marcação de código ao redor:
+{"candidatas":[{"id":<número_id>,"confianca":<0 a 100>}],"observacao":"<1 frase: motivo da escolha>","foto_sugerida":"<sugestão de foto se necessário>"}
+No máximo 3 candidatas, da mais para a menos provável. Seja conservador na "confianca".`;
+
   busy(true);
+
   try{
-    const opts={modelTier:'complex'};
-    if(canPhoto)opts.images=await Promise.all(files.map(shrink));
-    show(await sample.json(prompt,opts));
+    const parts = [{ text: prompt }];
+
+    for (let f of files) {
+      const b64 = await fileToBase64(f);
+      parts.push({
+        inline_data: {
+          mime_type: f.type || "image/jpeg",
+          data: b64
+        }
+      });
+    }
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: parts }]
+      })
+    });
+
+    if(!response.ok) throw new Error("Erro na requisição à API Gemini: " + response.statusText);
+
+    const jsonRes = await response.json();
+    let rawText = jsonRes.candidates[0].content.parts[0].text;
+    
+    // Limpa a resposta de blocos do markdown se houver
+    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    const parsedData = JSON.parse(rawText);
+    show(parsedData);
+
   }catch(e){
-    const c=e&&e.code;
-    if(c==='images_unavailable'){canPhoto=false;textMode();err('Este visor não aceita fotos. Descreva a planta no campo de texto e toque em Escanear planta.')}
-    else if(c==='not_granted')err('Para identificar a planta, permita o uso da IA quando o aviso aparecer.');
-    else if(c==='rate_limited')err('Muitas solicitações. Aguarde um instante e tente de novo.');
-    else if(c==='image_rejected')err('Não foi possível ler uma das imagens. Tente outra foto, mais nítida.');
-    else err('Não foi possível identificar agora. Tente novamente.');
-  }finally{busy(false)}
+    console.error(e);
+    err('Não foi possível identificar a planta. Verifique se adicionou sua chave da API da Gemini ou tente novamente.');
+  }finally{
+    busy(false);
+  }
 };
 
 function grid(q){q=(q||'').toLowerCase();
   $('grid').innerHTML=DB.filter(w=>(w.n+w.s+w.f).toLowerCase().includes(q)).map(w=>`<div class="card"><div class="top">${ico(w)}<div><h3>${esc(w.n)}</h3>
     <div class="sci">${esc(w.k[0])} · ${esc(w.f)}</div></div></div><p>${esc(w.d)}</p>${tips(w)}<p class="sci" style="margin-top:8px"><b>Herbicida indicado:</b> ${esc(w.chem)}</p></div>`).join('')||'<p>Nenhuma espécie encontrada.</p>'}
-function pick(n){$('q').value=n;grid(n);$('guia').scrollIntoView({behavior:'smooth'})}
-$('q').oninput=e=>grid(e.target.value);grid();
+function pick(n){$('q').value=n;grid(n);$('guia').scrollIntoView({behavior:'smooth'})}$('q').oninput=e=>grid(e.target.value);grid();
 </script>
 </body>
 </html>
